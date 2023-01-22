@@ -12,10 +12,7 @@ block contenido
                     div
                         label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="Email") Email
                         input#Email.w-full.px-3.py-2.border.border-gray400.rounded-md.placeholder-gray-400(placeholder="Email", type="text", name="Email")
-                    div
-                        label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="pass") Password
-                        input#nombre.w-full.px-3.py-2.border.border-gray400.rounded-md.placeholder-gray-400(placeholder="Password", type="text", name="pass")
                     div.flex.items-center.justify-between
                         a.text-gray-500.text-xs(href="/auth/register") ¿No Tienes Cuenta? Registrate
-                        a.text-gray-500.text-xs(href="/auth/forgot-pass") Olvide mi contraseña
-                    input(class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md" type="submit" value="Login")
+                        a.text-gray-500.text-xs(href="/auth/login") ¿Ya Tienes Cuenta? Inicia Sesion
+                    input(class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md" type="submit" value="Recuperar Contraseña")
