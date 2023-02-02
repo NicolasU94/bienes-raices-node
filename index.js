@@ -5,10 +5,12 @@ import db from "./config/db.js";
 //Creating the app
 
 const app = express();
+app.use(express.urlencoded({ extended: true }));
 
 //* Db Connection is being openned //
 try {
   await db.authenticate();
+  db.sync();
   console.log("Connection to db established successfully");
 } catch (error) {
   console.log("Connection to db failed" + error.message);
