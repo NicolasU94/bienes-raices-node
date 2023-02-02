@@ -3,13 +3,15 @@ import {
   formularioLogin,
   formularioRegister,
   formularioForgotPass,
-} from "./controllers/usuarioController.js";
+  register,
+} from "../controllers/usuarioController.js";
 
 const router = express.Router();
 
 router.get("/", function (req, res) {
   res.json({ msg: "Sending Back server message" });
 });
+router.post("/register", register);
 
 router.get("/login", formularioLogin);
 router.get("/register", formularioRegister);
