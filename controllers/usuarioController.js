@@ -1,4 +1,5 @@
 import { check, validationResult } from "express-validator";
+import { generateToken } from "../helpers/token.js";
 import Usuario from "../models/Usuario.js";
 
 const formularioLogin = (req, res) => {
@@ -31,7 +32,7 @@ const register = async (req, res) => {
   //*Parsing validation result to variable//
   let result = validationResult(req);
 
-  const { name, email } = req.body;
+  const { name, email, password } = req.body;
 
   if (!result.isEmpty()) {
     return res.render("auth/register", {
@@ -45,7 +46,7 @@ const register = async (req, res) => {
   }
 
   const userCreated = await Usuario.findOne({
-    where: { ElementInternals },
+    where: { email },
   });
 
   if (userCreated) {
@@ -59,7 +60,18 @@ const register = async (req, res) => {
     });
   }
 
-  const user = await Usuario.create(req.body);
+  const user = await Usuario.create({
+    name,
+    email,
+    password,
+    token: generateToken(),
+  });
+
+  res.render("templates/message", {
+    pagina: "Account Created successfully",
+    mensaje:
+      "We've sent out an email to your inbox, confirm your account on the link",
+  });
   res.json(user);
   console.log();
 };
