@@ -1,5 +1,6 @@
 import { check, validationResult } from "express-validator";
 import { generateToken } from "../helpers/token.js";
+import { emailRegister } from "../helpers/email.js";
 import Usuario from "../models/Usuario.js";
 
 const formularioLogin = (req, res) => {
@@ -12,6 +13,7 @@ const formularioLogin = (req, res) => {
 const formularioRegister = (req, res) => {
   res.render("auth/register", {
     pagina: "Crear Cuenta",
+    csrfToken: req.csrfToken(),
   });
 };
 
@@ -37,6 +39,7 @@ const register = async (req, res) => {
   if (!result.isEmpty()) {
     return res.render("auth/register", {
       pagina: "Crear Cuenta",
+      csrfToken: req.csrfToken(),
       errores: result.array(),
       usuario: {
         nombre: name,
@@ -52,6 +55,7 @@ const register = async (req, res) => {
   if (userCreated) {
     return res.render("auth/register", {
       pagina: "Crear Cuenta",
+      csrfToken: req.csrfToken(),
       errores: [{ msg: "User already exists" }],
       usuario: {
         nombre: name,
@@ -67,13 +71,19 @@ const register = async (req, res) => {
     token: generateToken(),
   });
 
+  //Sending out the email:
+
+  emailRegister({
+    name: user.name,
+    email: user.email,
+    token: user.token,
+  });
+
   res.render("templates/message", {
     pagina: "Account Created successfully",
     mensaje:
       "We've sent out an email to your inbox, confirm your account on the link",
   });
-  res.json(user);
-  console.log();
 };
 
 const formularioForgotPass = (req, res) => {
@@ -82,4 +92,39 @@ const formularioForgotPass = (req, res) => {
   });
 };
 
-export { formularioLogin, register, formularioRegister, formularioForgotPass };
+const checkAccount = async (req, res) => {
+  const { token } = req.params;
+
+  const myUser = await Usuario.findOne({
+    where: { token },
+  });
+
+  if (!myUser) {
+    res.render("auth/confirm-account", {
+      pagina: "There was an error creating your account",
+      mensaje:
+        "There was an error when attempting to create your account. Please try again",
+      error: true,
+    });
+  }
+
+  myUser.confirmed = true;
+
+  myUser.token = null;
+
+  await myUser.save();
+
+  res.render("auth/confirm-account", {
+    pagina: "Your Account was created successfully",
+    mensaje: "Account was successfully created!.",
+    error: false,
+  });
+};
+
+export {
+  formularioLogin,
+  register,
+  formularioRegister,
+  formularioForgotPass,
+  checkAccount,
+};
