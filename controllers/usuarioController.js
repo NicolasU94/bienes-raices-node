@@ -1,6 +1,6 @@
 import { check, validationResult } from "express-validator";
 import { generateToken } from "../helpers/token.js";
-import { emailRegister } from "../helpers/email.js";
+import { emailRegister, emailPass } from "../helpers/email.js";
 import Usuario from "../models/Usuario.js";
 
 const formularioLogin = (req, res) => {
@@ -89,6 +89,53 @@ const register = async (req, res) => {
 const formularioForgotPass = (req, res) => {
   res.render("auth/forgotPass", {
     pagina: "Recupera Acceso a tu cuenta",
+    csrfToken: req.csrfToken(),
+  });
+};
+
+const resetPass = async (req, res) => {
+  await check("email").isEmail().withMessage("Email must be valid").run(req);
+
+  let result = validationResult(req);
+
+  const { email } = req.body;
+
+  if (!result.isEmpty()) {
+    return res.render("auth/forgotPass", {
+      pagina: "Recupera Acceso a tu cuenta",
+      csrfToken: req.csrfToken(),
+      errores: result.array(),
+    });
+  }
+
+  const userFound = await Usuario.findOne({
+    where: { email },
+  });
+
+  if (!userFound) {
+    return res.render("auth/forgotPass", {
+      pagina: "Recupera Acceso a tu cuenta",
+      csrfToken: req.csrfToken(),
+      errores: [
+        { msg: "The email entered is not registered to an existing user" },
+      ],
+    });
+  }
+
+  userFound.token = generateToken();
+  await userFound.save();
+
+  const { name, token } = userFound;
+
+  emailPass({
+    name,
+    email,
+    token,
+  });
+
+  res.render("templates/message", {
+    pagina: "Password Reset request sent",
+    mensaje: "We've sent out an email to your inbox to reset your password",
   });
 };
 
@@ -121,10 +168,54 @@ const checkAccount = async (req, res) => {
   });
 };
 
+const checkToken = async (req, res) => {
+  const { token } = req.params;
+
+  const myUser = await Usuario.findOne({
+    where: { token },
+  });
+
+  if (!myUser) {
+    res.render("auth/confirm-account", {
+      pagina: "There was an error resetting your password",
+      mensaje:
+        "There was an error when attempting to reset your password. Please try again",
+      error: true,
+    });
+  }
+
+  res.render("auth/resetPass", {
+    pagina: "Reset your password",
+    csrfToken: req.csrfToken(),
+  });
+};
+
+const newPass = async (req, res) => {
+  console.log("saving password");
+
+  await check("password")
+    .isLength({ min: 8 })
+    .withMessage("Password must be at least 8 characters long")
+    .run(req);
+
+  let result = validationResult(req);
+
+  if (!result.isEmpty) {
+    res.render("auth/resetPass", {
+      pagina: "Reset your password",
+      csrfToken: req.csrfToken(),
+      errores: result.array(),
+    });
+  }
+};
+
 export {
   formularioLogin,
   register,
   formularioRegister,
   formularioForgotPass,
   checkAccount,
+  resetPass,
+  newPass,
+  checkToken,
 };
