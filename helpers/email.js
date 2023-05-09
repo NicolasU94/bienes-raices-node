@@ -50,7 +50,7 @@ const emailPass = async (data) => {
     subject: "Bienes Raices account recovery",
     text: "Bienes Raices password change request",
     html: `
-    <p>Hi${name}! A password change request was submitted for your account</p>
+    <p>Hi ${name}! A password change request was submitted for your account</p>
     
     <p>To change your password click on the following link:
     <a href="${process.env.BACKEND_URL}:${process.env.PORT}/auth/forgot-pass/${token}">Reset Password</a> </p>

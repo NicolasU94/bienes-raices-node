@@ -13,9 +13,9 @@ block contenido
 
         .mt-8.mx-auto.max-w-md
             .bg-white.py-8.px-4.shadow
-                form.space-y-5(method="POST" action="/auth/forgot-pass" noValidate)
+                form.space-y-5(method="POST" noValidate)
                     input(type='hidden' name='_csrf' value=csrfToken)
                     div
                         label.block.text-sm.uppercase.text-gray-500.mb-2.font-bold(for="password") Enter your new password
-                        input#password.w-full.px-3.py-2.border.border-gray400.rounded-md.placeholder-gray-400(placeholder="Your new password", type="text", name="password")
+                        input#password.w-full.px-3.py-2.border.border-gray400.rounded-md.placeholder-gray-400(placeholder="Your new password", type="password", name="password")
                     input(class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-md" type="submit" value="Confirm Password")

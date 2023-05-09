@@ -30,4 +30,8 @@ const Usuario = db.define(
   }
 );
 
+Usuario.prototype.verifyPass = function (pass) {
+  return bcrypt.compareSync(pass, this.password);
+};
+
 export default Usuario;
